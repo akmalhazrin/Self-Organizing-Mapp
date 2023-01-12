@@ -1,0 +1,97 @@
+---
+title: "Self-Organizing map"
+author: "Akmal Hazrin-Institut Teknologi Statistika dan Bisnis Muhammadiyah"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    higlight: zenburn
+    toc: true
+    toc_float:
+      collapsed: true
+    df_print: paged
+bibliography: references.bib
+---
+
+```{=html}
+<style>
+body{
+text-align: justify}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Pengertian Algoritma Self-Organizing Map
+SOM merupakan salah satu teknik dalam Neural Network yang bertujuan untuk melakukan visualisasi data dengan cara mengurangi dimensi data melalui penggunaan self-organizing neural networks sehingga manusia dapat mengerti high-dimensional data yang dipetakan dalam bentuk low-dimensional data. Metode pembelajaran yang digunakan SOM adalah tanpa bimbingan dari suatu data input-target atau unsupervised learning yang mengasumsikan sebuah topologi yang terstruktur menjadikan unit-unit kelas/cluster.
+
+# Tahapan Self-Organizing Map
+
+## Library
+kita panggil package yang akan kita gunakan.
+```{r}
+library(kohonen)
+```
+### Masukan dataset iris3
+muat dataset yang akan dianalisis, yaitu dataset iris3.
+
+Setelah mengaktifkan library, selanjutnya adalah memanggil dataset iris3 dengan menggunakan syntax berikut
+
+```{r}
+iris3
+```
+
+
+```{r}
+data("iris3")
+head(iris3)
+```
+
+```{r}
+dim(iris3)
+```
+
+```{r}
+scale(iris3)
+head(scale(iris3))
+```
+
+
+```{r}
+iris3 = as.matrix(iris3)
+```
+
+```{r}
+som.iris3 = som(scale(iris3), grid = somgrid(xdim = 3, ydim = 3, topo = "hexagonal"))
+plot(som.iris3, type = "mapping")
+```
+
+```{r}
+som.iris3$grid$pts
+```
+
+```{r}
+som.iris3$unit.classif
+```
+
+```{r}
+plot(iris3)
+```
+
+```{r}
+som.iris3$codes[[1]]
+```
+
+```{r}
+dist(som.iris3$codes[[1]])
+```
+
+```{r}
+hclust(dist(som.iris3$codes[[1]]))
+```
+
+```{r}
+peta = cutree(hclust(dist(som.iris3$codes[[1]])), 3)
+plot(som.iris3, type = "codes", bgcol = rainbow(3)[peta])
+add.cluster.boundaries(som.iris3, peta)
+```

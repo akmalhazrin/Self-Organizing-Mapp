@@ -1,0 +1,138 @@
+---
+title: "Self-Organizing map"
+author: "Akmal Hazrin-Institut Teknologi Statistika dan Bisnis Muhammadiyah"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    theme: flatly
+    higlight: zenburn
+    toc: true
+    toc_float:
+      collapsed: true
+    df_print: paged
+bibliography: references.bib
+---
+
+```{=html}
+<style>
+body{
+text-align: justify}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Pengertian Algoritma Self-Organizing Map
+
+Self Organising Map (SOM) merupakan suatu tipe Artificial Neural Networks yang ditraining secara unsupervised. SOM menghasilkan map yang terdiri dari output dalam dimensi yang rendah (2 atau 3 dimensi). Bertujuan untuk mengklasifikasikan suatu vektor-vektor input berdasarkan bagaimana mereka mengelompok sesuai dengan karakteristik inputnya. Komposisi input dan output dalam SOM mirip dengan komposisi dari proses feature scaling (multidimensional scaling). Walaupun proses learning yang dilakukan mirip dengan Artificial Neural Networks, tetapi proses untuk meng-assign input data ke map, lebih mirip dengan K-Means dan KNN Algorithm.
+
+
+# Tahapan Self-Organizing Map
+
+1) Inisialisasi awal Bobot 𝑤_𝑖𝑗 (random).
+2) Nilai parameter learning rate (α) dan radius tetangga (R).
+3) - Selama kondisi penghentian bernilai salah, lakukan langkah 2 – 8.
+    - Untuk setiap input vektor x, (𝑥_𝑖, i = 1, 2, ..., n) lakukan langkah 3 – 5.
+    - Hitung jarak Euclidian untuk semua j (j = 1, 2, ..., m).
+          𝐷_((𝑗) )=∑_(𝑖=0)^𝑛▒〖(𝑤_𝑖𝑗−𝑥_𝑖)²〗(1)
+4) Tentukan indeks j sedemikian sehingga 𝐷_((𝑗) )  minimum.
+5) Melakukan perbaikan wij dengan nilai tertentu, yaitu:
+𝑤_(𝑖𝑗 )(𝑏𝑎𝑟𝑢) = 𝑤_𝑖𝑗 (𝑙𝑎𝑚𝑎) + 𝑎[𝑥_𝑖  − 𝑤_𝑖𝑗 (𝑙𝑎𝑚𝑎)] (2)
+6) Modifikasi parameter learning rate.
+7) Uji kondisi penghentian. Kondisi penghentian iterasi adalah selisih antara 𝑤_𝑖𝑗 saat itu dengan 𝑤_𝑖𝑗 pada iterasi sebelumnya. Apabila semua 𝑤_𝑖𝑗 hanya berubah sedikit saja, berarti iterasi sudah mencapai konvergensi sehingga dapat dihentikan.
+
+
+## Library
+kita panggil package yang akan kita gunakan.
+```{r}
+library(kohonen)
+```
+### Masukan dataset iris3
+Setelah mengaktifkan library, selanjutnya adalah memanggil dataset iris3.
+.
+
+.
+
+.
+
+```{r}
+iris3
+```
+muat dataset yang akan dianalisis, yaitu dataset iris3.
+```{r}
+data(iris3)
+head(iris3)
+```
+Jika akan melihat dimensi dataset swiss menggunakan sintaks dim(iris3) dan diperoleh hasil sebagai berikut
+
+```{r}
+dim(iris3)
+```
+Kemudian kita akan melakukan scaling pada dataset iris3.
+
+```{r}
+scale(iris3)
+head(scale(iris3))
+```
+Setelah itu, kita akan mengubah data frame iris3 menjadi bentuk matriks.
+```{r}
+swiss = as.matrix(iris3)
+```
+Selanjutnya kita masuk pada analisis SOM. Kali ini akan dilakukan pengelompokan menggunakan SOM dengan x=3 dan y=3 menggunakan sintaks berikut
+
+### Mapping Plot
+```{r}
+som.iris3 = som(scale(iris3), grid = somgrid(xdim = 3, ydim = 3, topo = "hexagonal"))
+plot(som.iris3, type = "mapping")
+```
+
+Berdasarkan hasil tersebut akan dilihat titik-titik pada map menggunakan sintaks som.iris3$grid$pts dan untuk melihat keanggotaan dari masing-masing observasi digunakan sintaks som.iris3$unit.classif.
+
+```{r}
+som.iris3$grid$pts
+```
+
+```{r}
+som.iris3$unit.classif
+```
+
+Berdasarkan output, diketahui bahwa lingkaran 1 dimulai dari lingkaran kiri bawah dan lingkaran 9 adalah lingkaran yang terdapat pada kanan atas. Kemudian diketahui juga bahwa observasi 1 termasuk ke dalam lingkaran 3, observasi 2 termasuk ke dalam lingkaran 8, dan seterusnya hingga observasi 47 termasuk ke dalam lingkaran 7 pada mapping plot.
+
+### Codes Plot.
+
+Kemudian untuk plot secara keseluruhan, kita gunakan sintaks plot(som.iris3).
+
+```{r}
+plot(som.iris3)
+```
+
+Berdasarkan output, diketahui bahwa seluruh variabel tidak direduksi. Semua variabel tetap ditampilkan dalam plot dengan diwakili oleh warna yang berbeda. Plot yang dihasilkan tersebut mewakili objek yang masuk dalam lingkaran. Contohnya, objek yang terdapat pada lingkaran 7 merupakan objek yang memiliki % Examination dan Education yang tinggi.
+
+Kemudian kita akan menampilkan data yang dihasilkan oleh analisis SOM
+```{r}
+som.iris3$codes[[1]]
+```
+
+Data yang semula memiliki 47 objek dari 6 variabel, saat ini menjadi 9 objek dari 6 variabel. Kemudian, kita hitung jarak antar objek menggunakan sintaks dist(som.iris3$codes[[1]]).
+
+```{r}
+dist(som.iris3$codes[[1]])
+```
+Setelah itu kita akan mengelompokkan data menggunakan hierarchical clustering dengan k sebanyak 3.
+```{r}
+hclust(dist(som.iris3$codes[[1]]))
+```
+
+Metode yang digunakan dalam pengelompokan adalah metode Complete dan jarak yang digunakan merupakan jarak Euclidean.
+
+```{r}
+peta = cutree(hclust(dist(som.iris3$codes[[1]])), 3)
+plot(som.iris3, type = "codes", bgcol = rainbow(3)[peta])
+add.cluster.boundaries(som.iris3, peta)
+```
+
+
+# Referensi
+1. https://medium.com/@dhea.larasati326/self-organizing-map-som-dengan-r-menggunakan-dataset-orange-db4cf9821705.
+2. https://medium.com/@kurniasp/self-organizing-maps-using-kohonen-in-r-a509ac4b25eb.
+3. https://github.com/
